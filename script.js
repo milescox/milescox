@@ -1,6 +1,8 @@
 const slider = document.querySelector('#heroSlider');
-const slides = Array.from(slider.querySelectorAll('.slide'));
-const dots = Array.from(slider.querySelectorAll('.slider-dot'));
+const slides = slider ? Array.from(slider.querySelectorAll('.slide')) : [];
+const dots = slider ? Array.from(slider.querySelectorAll('.slider-dot')) : [];
+const menuToggle = document.querySelector('.menu-toggle');
+const navLinks = document.querySelector('#main-navigation');
 let activeIndex = 0;
 let sliderInterval = null;
 
@@ -15,11 +17,13 @@ function setActiveSlide(index) {
 }
 
 function nextSlide() {
+  if (!slides.length) return;
   const nextIndex = (activeIndex + 1) % slides.length;
   setActiveSlide(nextIndex);
 }
 
 function startSlider() {
+  if (!slides.length) return;
   if (sliderInterval) {
     clearInterval(sliderInterval);
   }
@@ -27,7 +31,22 @@ function startSlider() {
 }
 
 function stopSlider() {
-  clearInterval(sliderInterval);
+  if (sliderInterval) {
+    clearInterval(sliderInterval);
+    sliderInterval = null;
+  }
+}
+
+function toggleMenu() {
+  if (!navLinks || !menuToggle) return;
+  const isOpen = navLinks.classList.toggle('open');
+  menuToggle.setAttribute('aria-expanded', String(isOpen));
+}
+
+function closeMenu() {
+  if (!navLinks || !menuToggle) return;
+  navLinks.classList.remove('open');
+  menuToggle.setAttribute('aria-expanded', 'false');
 }
 
 function toggleCardAnimation(event) {
@@ -53,6 +72,7 @@ function handleFormSubmit(event) {
 }
 
 function initSliderControls() {
+  if (!dots.length) return;
   dots.forEach((dot) => {
     dot.addEventListener('click', () => {
       const index = Number(dot.dataset.index);
@@ -76,6 +96,14 @@ function initInteractiveCards() {
   });
 }
 
+function initMobileMenu() {
+  if (!menuToggle || !navLinks) return;
+  menuToggle.addEventListener('click', toggleMenu);
+  navLinks.querySelectorAll('a').forEach((link) => {
+    link.addEventListener('click', closeMenu);
+  });
+}
+
 function initForm() {
   const form = document.getElementById('contactForm');
   const budget = document.getElementById('budget');
@@ -91,6 +119,7 @@ function init() {
   initSliderControls();
   initInteractiveCards();
   initForm();
+  initMobileMenu();
   startSlider();
 }
 
